@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'attendance',
     'home',
     'users',
+    'beaconmgmt',
 ]
 
 MIDDLEWARE = [
