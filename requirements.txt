@@ -1,0 +1,18 @@
+# Core requirements
+Django==5.0.1
+django-crispy-forms==2.1
+django-widget-tweaks==1.5.0
+Pillow==10.1.0
+python-dotenv==1.0.0
+
+# Development tools
+django-debug-toolbar==4.2.0
+coverage==7.4.1
+
+# Export/Import support
+openpyxl==3.1.2
+xlsxwriter==3.1.9
+
+# Security
+django-axes==6.3.0  # Login security
+django-cors-headers==4.3.1

@@ -1,0 +1,279 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - Beacon ERP{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
+<style>
+    .stat-card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    .recent-activity-item {
+        border-left: 3px solid #007bff;
+        margin-bottom: 1rem;
+        padding: 0.5rem 1rem;
+        background-color: #f8f9fa;
+    }
+    .upcoming-event {
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        padding: 0.75rem;
+    }
+    .fee-due {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Welcome, {{ user.get_full_name|default:user.username }}</h2>
+            <p class="text-muted">Here's your overview for today</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Total Students</h6>
+                            <h2 class="mt-2 mb-0">{{ total_students }}</h2>
+                        </div>
+                        <i class="fas fa-users stat-icon"></i>
+                    </div>
+                    <small>Active students in the system</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Active Courses</h6>
+                            <h2 class="mt-2 mb-0">{{ active_courses }}</h2>
+                        </div>
+                        <i class="fas fa-book stat-icon"></i>
+                    </div>
+                    <small>Currently running courses</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Today's Attendance</h6>
+                            <h2 class="mt-2 mb-0">
+                                {% if attendance_percentage != None %}
+                                {{ attendance_percentage }}%
+                                {% else %}
+                                --
+                                {% endif %}
+                            </h2>
+                        </div>
+                        <i class="fas fa-clipboard-check stat-icon"></i>
+                    </div>
+                    <small>Average attendance today</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Pending Fees</h6>
+                            <h2 class="mt-2 mb-0">${{ pending_fees|floatformat:2 }}</h2>
+                        </div>
+                        <i class="fas fa-dollar-sign stat-icon"></i>
+                    </div>
+                    <small>Total outstanding fees</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Attendance Trends</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="attendanceChart" height="300"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    {% for activity in recent_activities %}
+                    <div class="recent-activity-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ activity.title }}</h6>
+                                <p class="mb-0 text-muted">{{ activity.description }}</p>
+                            </div>
+                            <span class="badge bg-{{ activity.badge_type }}">{{ activity.type }}</span>
+                        </div>
+                        <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted my-3">No recent activities</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Upcoming Events</h5>
+                </div>
+                <div class="card-body">
+                    {% for event in upcoming_events %}
+                    <div class="upcoming-event {% if event.type == 'fee_due' %}fee-due{% endif %}">
+                        <h6 class="mb-1">{{ event.title }}</h6>
+                        <p class="mb-1">{{ event.description }}</p>
+                        <small class="text-muted">{{ event.date|date:"F j, Y" }}</small>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">No upcoming events</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.is_staff %}
+<div class="row mt-4">
+    <!-- Quick Actions -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% if perms.students.add_student %}
+                    <div class="col-auto">
+                        <a href="{% url 'students:add' %}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Add Student
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if perms.courses.add_course %}
+                    <div class="col-auto">
+                        <a href="{% url 'courses:add' %}" class="btn btn-success">
+                            <i class="fas fa-book-medical"></i> Add Course
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if perms.attendance.add_attendancerecord %}
+                    <div class="col-auto">
+                        <a href="{% url 'attendance:mark' %}" class="btn btn-info">
+                            <i class="fas fa-clipboard-check"></i> Mark Attendance
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if perms.finance.add_payment %}
+                    <div class="col-auto">
+                        <a href="{% url 'finance:payment_create' %}" class="btn btn-warning">
+                            <i class="fas fa-money-bill-wave"></i> Record Payment
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    const attendanceData = JSON.parse('{{ attendance_trends|escapejs }}');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: attendanceData.map(function(item) { 
+                return new Date(item.date).toLocaleDateString();
+            }),
+            datasets: [{
+                label: 'Attendance Percentage',
+                data: attendanceData.map(function(item) {
+                    return item.percentage;
+                }),
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

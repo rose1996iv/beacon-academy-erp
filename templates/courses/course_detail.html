@@ -1,0 +1,171 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ course.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Course Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <strong>Course Code:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {{ course.code }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <strong>Course Name:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {{ course.name }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <strong>Description:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {{ course.description|linebreaks }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <strong>Credits:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {{ course.credits }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <strong>Semester:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {{ course.semester }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <strong>Department:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {{ course.department }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <strong>Status:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {% if course.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if schedule %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Schedule Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <strong>Day:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {{ schedule.get_day_display }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <strong>Time:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <strong>Room:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {{ schedule.room }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'courses:list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                        {% if perms.courses.change_course %}
+                        <a href="{% url 'courses:edit' course.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Course
+                        </a>
+                        {% endif %}
+                        {% if perms.courses.delete_course %}
+                        <a href="{% url 'courses:delete' course.pk %}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete Course
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if instructors %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Instructors</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for instructor in instructors %}
+                        <li class="list-group-item">
+                            {{ instructor.get_full_name }}
+                            {% if instructor.is_primary %}
+                            <span class="badge bg-primary float-end">Primary</span>
+                            {% endif %}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center text-muted">
+                            No instructors assigned
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
