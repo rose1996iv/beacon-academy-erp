@@ -1,0 +1,225 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages mb-3">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h4 class="mb-3">Account Information</h4>
+                                <div class="mb-3">
+                                    <label for="id_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.first_name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.last_name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_username" class="form-label">Username <span class="text-danger">*</span></label>
+                                    {{ form.username }}
+                                    {% if form.username.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.username.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_password" class="form-label">Password {% if not form.instance.pk %}<span class="text-danger">*</span>{% endif %}</label>
+                                    {{ form.password }}
+                                    {% if form.password.help_text %}
+                                    <div class="form-text">{{ form.password.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.password.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.password.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h4 class="mb-3">Professional Information</h4>
+                                <div class="mb-3">
+                                    <label for="id_phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    {{ form.phone }}
+                                    {% if form.phone.help_text %}
+                                    <div class="form-text">{{ form.phone.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.phone.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_address" class="form-label">Address <span class="text-danger">*</span></label>
+                                    {{ form.address }}
+                                    {% if form.address.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.address.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_specialization" class="form-label">Specialization <span class="text-danger">*</span></label>
+                                    {{ form.specialization }}
+                                    {% if form.specialization.help_text %}
+                                    <div class="form-text">{{ form.specialization.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.specialization.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.specialization.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_qualifications" class="form-label">Qualifications <span class="text-danger">*</span></label>
+                                    {{ form.qualifications }}
+                                    {% if form.qualifications.help_text %}
+                                    <div class="form-text">{{ form.qualifications.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.qualifications.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.qualifications.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_teaching_experience" class="form-label">Teaching Experience (Years) <span class="text-danger">*</span></label>
+                                    {{ form.teaching_experience }}
+                                    {% if form.teaching_experience.help_text %}
+                                    <div class="form-text">{{ form.teaching_experience.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.teaching_experience.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.teaching_experience.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_bio" class="form-label">Biography</label>
+                                    {{ form.bio }}
+                                    {% if form.bio.help_text %}
+                                    <div class="form-text">{{ form.bio.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.bio.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.bio.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <h4 class="mb-3 mt-4">Emergency Contact</h4>
+                                <div class="mb-3">
+                                    <label for="id_emergency_contact_name" class="form-label">Emergency Contact Name <span class="text-danger">*</span></label>
+                                    {{ form.emergency_contact_name }}
+                                    {% if form.emergency_contact_name.help_text %}
+                                    <div class="form-text">{{ form.emergency_contact_name.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.emergency_contact_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.emergency_contact_name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_emergency_contact_phone" class="form-label">Emergency Contact Phone <span class="text-danger">*</span></label>
+                                    {{ form.emergency_contact_phone }}
+                                    {% if form.emergency_contact_phone.help_text %}
+                                    <div class="form-text">{{ form.emergency_contact_phone.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.emergency_contact_phone.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.emergency_contact_phone.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'instructors:list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Instructor
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Enable Bootstrap form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
+{% endblock %}

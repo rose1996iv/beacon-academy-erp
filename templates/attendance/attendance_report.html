@@ -1,0 +1,142 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Attendance Report{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Attendance Report</h3>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="start_date" class="form-label">Start Date</label>
+                                    <input type="date" id="start_date" name="start_date" class="form-control" 
+                                           value="{{ request.GET.start_date }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="end_date" class="form-label">End Date</label>
+                                    <input type="date" id="end_date" name="end_date" class="form-control"
+                                           value="{{ request.GET.end_date }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="course" class="form-label">Course</label>
+                                    <select id="course" name="course" class="form-select">
+                                        <option value="">All Courses</option>
+                                        {% for course in courses %}
+                                        <option value="{{ course.id }}" 
+                                            {% if request.GET.course|add:"0" == course.id %}selected{% endif %}>
+                                            {{ course.code }} - {{ course.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="student" class="form-label">Student</label>
+                                    <select id="student" name="student" class="form-select">
+                                        <option value="">All Students</option>
+                                        {% for student in students %}
+                                        <option value="{{ student.id }}"
+                                            {% if request.GET.student|add:"0" == student.id %}selected{% endif %}>
+                                            {{ student.student_id }} - {{ student.full_name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Generate Report
+                        </button>
+                    </form>
+
+                    {% if attendance_data %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Student</th>
+                                    <th>Course</th>
+                                    <th>Status</th>
+                                    <th>Minutes Late</th>
+                                    <th>Marked By</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance_data %}
+                                <tr>
+                                    <td>{{ record.date|date:"M d, Y" }}</td>
+                                    <td>{{ record.student.full_name }}</td>
+                                    <td>{{ record.course.code }}</td>
+                                    <td>
+                                        {% if record.status == 'P' %}
+                                        <span class="badge bg-success">Present</span>
+                                        {% elif record.status == 'A' %}
+                                        <span class="badge bg-danger">Absent</span>
+                                        {% elif record.status == 'L' %}
+                                        <span class="badge bg-warning">Late</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ record.minutes_late|default:"-" }}</td>
+                                    <td>{{ record.marked_by.user.get_full_name }}</td>
+                                    <td>{{ record.notes|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4">
+                        <h4>Summary</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Present</h5>
+                                        <p class="card-text h3">{{ present_count }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-danger text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Absent</h5>
+                                        <p class="card-text h3">{{ absent_count }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Late</h5>
+                                        <p class="card-text h3">{{ late_count }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        Select filters and click "Generate Report" to view attendance data.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

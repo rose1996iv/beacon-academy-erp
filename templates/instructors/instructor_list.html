@@ -1,0 +1,88 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Instructors{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Instructors</h2>
+        {% if perms.instructors.add_instructor %}
+        <a href="{% url 'instructors:add' %}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> Add New Instructor
+        </a>
+        {% endif %}
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Specialization</th>
+                            <th>Experience</th>
+                            <th>Contact</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for instructor in instructors %}
+                        <tr>
+                            <td>{{ instructor.user.get_full_name }}</td>
+                            <td>{{ instructor.specialization }}</td>
+                            <td>{{ instructor.teaching_experience }} years</td>
+                            <td>
+                                <div>{{ instructor.phone }}</div>
+                                <small class="text-muted">{{ instructor.user.email }}</small>
+                            </td>
+                            <td>
+                                {% if instructor.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'instructors:detail' instructor.pk %}" class="btn btn-sm btn-info" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if perms.instructors.change_instructor %}
+                                    <a href="{% url 'instructors:edit' instructor.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if perms.instructors.delete_instructor %}
+                                    <a href="{% url 'instructors:delete' instructor.pk %}" class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No instructors found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

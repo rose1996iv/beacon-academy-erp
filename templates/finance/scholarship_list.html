@@ -1,0 +1,91 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Scholarships{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Scholarships</h2>
+        {% if perms.finance.add_scholarship %}
+        <a href="{% url 'finance:scholarship_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Scholarship
+        </a>
+        {% endif %}
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Student</th>
+                            <th>Amount</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scholarship in scholarships %}
+                        <tr>
+                            <td>
+                                <div>{{ scholarship.name }}</div>
+                                <small class="text-muted">{{ scholarship.description }}</small>
+                            </td>
+                            <td>
+                                <div>{{ scholarship.student.full_name }}</div>
+                                <small class="text-muted">{{ scholarship.student.student_id }}</small>
+                            </td>
+                            <td>${{ scholarship.amount|floatformat:2 }}</td>
+                            <td>
+                                {{ scholarship.start_date|date:"M d, Y" }} - 
+                                {{ scholarship.end_date|date:"M d, Y" }}
+                            </td>
+                            <td>
+                                {% if scholarship.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    {% if perms.finance.change_scholarship %}
+                                    <a href="{% url 'finance:scholarship_edit' scholarship.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if perms.finance.delete_scholarship %}
+                                    <a href="{% url 'finance:scholarship_delete' scholarship.pk %}" class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No scholarships found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

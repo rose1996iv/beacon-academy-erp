@@ -1,0 +1,112 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Payment Receipt #{{ payment.receipt_number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        .print-only {
+            display: block !important;
+        }
+    }
+    .print-only {
+        display: none;
+    }
+    .receipt {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .receipt-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .receipt-logo {
+        max-width: 150px;
+        height: auto;
+    }
+    .receipt-details {
+        margin: 20px 0;
+    }
+    .receipt-table {
+        width: 100%;
+        margin: 20px 0;
+    }
+    .receipt-footer {
+        margin-top: 50px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="receipt">
+        <div class="receipt-header">
+            <h2>BEACON ACADEMY</h2>
+            <p>Official Payment Receipt</p>
+        </div>
+
+        <div class="receipt-details">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Receipt Number:</strong> {{ payment.receipt_number }}</p>
+                    <p><strong>Date:</strong> {{ payment.payment_date|date:"F d, Y" }}</p>
+                    <p><strong>Payment Method:</strong> {{ payment.get_payment_method_display }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Student Name:</strong> {{ payment.student.full_name }}</p>
+                    <p><strong>Student ID:</strong> {{ payment.student.student_id }}</p>
+                    {% if academic_info %}
+                    <p><strong>Department:</strong> {{ academic_info.department }}</p>
+                    <p><strong>Semester:</strong> {{ academic_info.current_semester }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <table class="table receipt-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th class="text-end">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ payment.fee.name }}</td>
+                    <td class="text-end">${{ payment.amount_paid|floatformat:2 }}</td>
+                </tr>
+                {% if payment.fee.description %}
+                <tr>
+                    <td colspan="2"><small class="text-muted">{{ payment.fee.description }}</small></td>
+                </tr>
+                {% endif %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Total Paid</th>
+                    <th class="text-end">${{ payment.amount_paid|floatformat:2 }}</th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="receipt-footer">
+            <p><em>Thank you for your payment!</em></p>
+            <p class="text-muted">This is a computer-generated receipt and does not require a signature.</p>
+            <div class="mt-4 no-print">
+                <button class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Receipt
+                </button>
+                <a href="{% url 'finance:payment_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

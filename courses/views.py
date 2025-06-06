@@ -18,13 +18,17 @@ def course_create(request):
     if request.method == 'POST':
         form = CourseForm(request.POST)
         schedule_form = CourseScheduleForm(request.POST)
-        if form.is_valid() and schedule_form.is_valid():
+        if form.is_valid():
             course = form.save()
             schedule = schedule_form.save(commit=False)
             schedule.course = course
-            schedule.save()
-            messages.success(request, 'Course created successfully.')
-            return redirect('course_list')
+            if schedule_form.is_valid():
+                schedule.save()
+                messages.success(request, 'Course created successfully.')
+                return redirect('courses:course_list')
+            else:
+                course.delete()
+                messages.error(request, 'Invalid schedule details.')
     else:
         form = CourseForm()
         schedule_form = CourseScheduleForm()

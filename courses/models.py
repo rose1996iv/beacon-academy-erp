@@ -8,12 +8,26 @@ class Course(models.Model):
     credits = models.IntegerField()
     semester = models.IntegerField()
     department = models.CharField(max_length=100)
+    students = models.ManyToManyField('students.Student', through='CourseEnrollment', related_name='enrolled_courses', blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.code} - {self.name}"
+
+class CourseEnrollment(models.Model):
+    student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    enrollment_date = models.DateField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ['student', 'course']
+        ordering = ['-enrollment_date']
+
+    def __str__(self):
+        return f"{self.student.full_name} - {self.course.code}"
 
 class CourseSchedule(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)

@@ -4,43 +4,30 @@ from .models import Student, StudentAcademicInfo
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['student_id', 'full_name', 'date_of_birth', 'gender', 'address', 'phone', 'email']
+        fields = [
+            'student_id',
+            'full_name',
+            'date_of_birth',
+            'gender',
+            'email',
+            'phone',
+            'address',
+            'profile_photo'
+        ]
         widgets = {
-            'student_id': forms.TextInput(attrs={
-                'placeholder': 'Enter student ID (e.g., 2023001)',
-                'class': 'form-control'
-            }),
-            'full_name': forms.TextInput(attrs={
-                'placeholder': 'Enter full name',
-                'class': 'form-control'
-            }),
-            'date_of_birth': forms.DateInput(attrs={
-                'type': 'date',
-                'class': 'form-control'
-            }),
-            'gender': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'address': forms.Textarea(attrs={
-                'placeholder': 'Enter complete address',
-                'class': 'form-control',
-                'rows': 3
-            }),
-            'phone': forms.TextInput(attrs={
-                'placeholder': 'Enter phone number',
-                'class': 'form-control'
-            }),
-            'email': forms.EmailInput(attrs={
-                'placeholder': 'Enter email address',
-                'class': 'form-control'
-            })
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
         }
-        help_texts = {
-            'student_id': 'A unique identifier for the student',
-            'full_name': 'Enter the complete name as in official documents',
-            'phone': 'Enter a valid phone number',
-            'email': 'Enter a valid email address - this will be used for login'
-        }
+
+    def clean_profile_photo(self):
+        photo = self.cleaned_data.get('profile_photo')
+        if photo:
+            # Check file size - limit to 5MB
+            if photo.size > 5 * 1024 * 1024:
+                raise forms.ValidationError("Image file size must be less than 5MB.")
+            # Check file type
+            if not photo.content_type.startswith('image'):
+                raise forms.ValidationError("File must be an image.")
+        return photo
 
 class StudentAcademicInfoForm(forms.ModelForm):
     class Meta:

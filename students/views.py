@@ -14,7 +14,7 @@ def student_list(request):
 @permission_required('students.add_student')
 def student_create(request):
     if request.method == 'POST':
-        form = StudentForm(request.POST)
+        form = StudentForm(request.POST, request.FILES)
         academic_form = StudentAcademicInfoForm(request.POST)
         if form.is_valid() and academic_form.is_valid():
             student = form.save()
@@ -22,7 +22,7 @@ def student_create(request):
             academic_info.student = student
             academic_info.save()
             messages.success(request, 'Student created successfully.')
-            return redirect('student_list')
+            return redirect('students:list')
     else:
         form = StudentForm()
         academic_form = StudentAcademicInfoForm()
@@ -37,16 +37,21 @@ def student_create(request):
 @permission_required('students.change_student')
 def student_update(request, pk):
     student = get_object_or_404(Student, pk=pk)
-    academic_info = student.studentacademicinfo_set.first()
+    academic_info = student.academic_info.first()
+    if not academic_info:
+        academic_info = StudentAcademicInfo(student=student)
     
     if request.method == 'POST':
-        form = StudentForm(request.POST, instance=student)
+        form = StudentForm(request.POST, request.FILES, instance=student)
         academic_form = StudentAcademicInfoForm(request.POST, instance=academic_info)
         if form.is_valid() and academic_form.is_valid():
+            # Delete old photo if a new one is uploaded
+            if 'profile_photo' in request.FILES and student.profile_photo:
+                student.profile_photo.delete(save=False)
             form.save()
             academic_form.save()
             messages.success(request, 'Student updated successfully.')
-            return redirect('student_list')
+            return redirect('students:list')
     else:
         form = StudentForm(instance=student)
         academic_form = StudentAcademicInfoForm(instance=academic_info)
@@ -54,7 +59,8 @@ def student_update(request, pk):
     return render(request, 'students/student_form.html', {
         'form': form,
         'academic_form': academic_form,
-        'title': 'Update Student'
+        'title': 'Edit Student',
+        'student': student
     })
 
 @login_required
@@ -64,5 +70,15 @@ def student_delete(request, pk):
     if request.method == 'POST':
         student.delete()
         messages.success(request, 'Student deleted successfully.')
-        return redirect('student_list')
+        return redirect('students:list')
     return render(request, 'students/student_confirm_delete.html', {'student': student})
+
+@login_required
+@permission_required('students.view_student')
+def student_detail(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    academic_info = student.studentacademicinfo_set.first()
+    return render(request, 'students/student_detail.html', {
+        'student': student,
+        'academic_info': academic_info,
+    })

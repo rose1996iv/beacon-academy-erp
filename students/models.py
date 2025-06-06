@@ -1,5 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
+import os
+
+def student_photo_path(instance, filename):
+    # Get the file extension
+    ext = filename.split('.')[-1]
+    # Return the path relative to MEDIA_ROOT
+    return f'student_photos/{instance.student_id}.{ext}'
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -12,6 +21,12 @@ class Student(models.Model):
     email = models.EmailField()
     admission_date = models.DateField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    profile_photo = models.ImageField(
+        upload_to=student_photo_path,
+        null=True,
+        blank=True,
+        help_text='Upload a profile photo (optional)'
+    )
 
     def save(self, *args, **kwargs):
         if not self.user and self.email:
@@ -39,8 +54,15 @@ class Student(models.Model):
     def __str__(self):
         return f"{self.student_id} - {self.full_name}"
 
+    def get_academic_info(self):
+        return self.academic_info.first() if self.academic_info.exists() else None
+
 class StudentAcademicInfo(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    student = models.ForeignKey(
+        Student, 
+        on_delete=models.CASCADE,
+        related_name='academic_info'
+    )
     current_semester = models.IntegerField()
     batch = models.CharField(max_length=20)
     department = models.CharField(max_length=100)
