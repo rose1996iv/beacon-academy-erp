@@ -1,10 +1,10 @@
 # Beacon Academy ERP System
 
-[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Django](https://img.shields.io/badge/Django-4.0+-green.svg)](https://www.djangoproject.com/)
-[![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/downloads/)
+[![Django](https://img.shields.io/badge/Django-5.0.1-green.svg)](https://www.djangoproject.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A comprehensive Educational Resource Planning (ERP) system for Beacon Academy, built with Django.
+A comprehensive Enterprise Resource Planning (ERP) system for educational institutions, built with Django. Features include student management, course scheduling, financial management, and more.
 
 ## Table of Contents
 
